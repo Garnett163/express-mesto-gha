@@ -10,7 +10,6 @@ function getUsers(req, res) {
 }
 
 function getUserById(req, res) {
-  // const { id } = req.params;
   return userSchema
     .findById(req.params.userId)
     .then((user) => {
