@@ -10,16 +10,22 @@ function getUsers(req, res) {
 }
 
 function getUserById(req, res) {
-  const { id } = req.params;
+  // const { id } = req.params;
   return userSchema
-    .findById(id)
+    .findById(req.params.userId)
     .then((user) => {
       if (!user) {
         return res.status(404).send({ message: 'Нет пользователя с таким id' });
       }
       return res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 }
 
 function createUser(req, res) {
@@ -49,7 +55,13 @@ function updateUser(req, res) {
       }
       return res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 }
 
 function updateAvatar(req, res) {
