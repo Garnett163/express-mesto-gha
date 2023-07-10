@@ -70,11 +70,13 @@ function dislikeCard(req, res) {
       if (!card) {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return cardSchema.findByIdAndUpdate(
-        req.params.cardId,
-        { $pull: { likes: owner } },
-        { new: true },
-      ).then((cardDislike) => res.status(200).send(cardDislike));
+      return cardSchema
+        .findByIdAndUpdate(
+          req.params.cardId,
+          { $pull: { likes: owner } },
+          { new: true },
+        )
+        .then((cardDislike) => res.status(200).send(cardDislike));
     })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
