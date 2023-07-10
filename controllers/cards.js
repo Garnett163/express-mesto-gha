@@ -42,28 +42,21 @@ function deleteCard(req, res) {
 }
 
 function likeCard(req, res) {
-  const { id } = req.params;
-  const owner = req.user._id;
   cardSchema
-    .findById(id)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Нет карточки с таким id' });
-      }
-      return cardSchema
-        .findByIdAndUpdate(
-          req.params.cardId,
-          { $addToSet: { likes: owner } },
-          { new: true },
-        )
-        .then((cardLike) => res.status(200).res.send(cardLike));
-    })
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    )
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
+      if (err.name) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 }
 
