@@ -27,18 +27,22 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
-  const { id } = req.params;
-  return cardSchema
-    .findById(id)
+  cardSchema
+    .findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return cardSchema.findByIdAndRemove(id).then((removeCard) => {
-        res.status(200).res.send(`${removeCard} успешно удалена`);
-      });
+      return res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные при удалении карточки.',
+        });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 }
 
 function likeCard(req, res) {
