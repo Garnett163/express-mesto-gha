@@ -56,9 +56,15 @@ function likeCard(req, res) {
           { $addToSet: { likes: owner } },
           { new: true },
         )
-        .then((cardLike) => res.status(200).send(cardLike));
+        .then((cardLike) => res.status(200).res.send(cardLike));
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 }
 
 function dislikeCard(req, res) {
@@ -76,9 +82,15 @@ function dislikeCard(req, res) {
           { $pull: { likes: owner } },
           { new: true },
         )
-        .then((cardDislike) => res.status(200).send(cardDislike));
+        .then((cardDislike) => res.status(200).res.send(cardDislike));
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 }
 
 module.exports = {
