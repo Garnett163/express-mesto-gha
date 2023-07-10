@@ -38,8 +38,38 @@ function createUser(req, res) {
     });
 }
 
+function updateUser(req, res) {
+  const { name, about } = req.body;
+  const owner = req.user._id;
+  userSchema
+    .findByIdAndUpdate(owner, { name, about }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+function updateAvatar(req, res) {
+  const { avatar } = req.body;
+  const owner = req.user._id;
+  userSchema
+    .findByIdAndUpdate(owner, { avatar }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateUser,
+  updateAvatar,
 };

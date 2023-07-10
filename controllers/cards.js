@@ -41,8 +41,46 @@ function deleteCard(req, res) {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
 
+function likeCard(req, res) {
+  const { id } = req.params;
+  const owner = req.user._id;
+  cardSchema
+    .findById(id)
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Нет карточки с таким id' });
+      }
+      return cardSchema.findByIdAndUpdate(
+        req.params.cardId,
+        { $addToSet: { likes: owner } },
+        { new: true },
+      );
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+function dislikeCard(req, res) {
+  const { id } = req.params;
+  const owner = req.user._id;
+  cardSchema
+    .findById(id)
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Нет карточки с таким id' });
+      }
+      return cardSchema.findByIdAndUpdate(
+        req.params.cardId,
+        { $pull: { likes: owner } },
+        { new: true },
+      );
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
 module.exports = {
   getCards,
   createCard,
   deleteCard,
+  likeCard,
+  dislikeCard,
 };
