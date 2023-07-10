@@ -48,6 +48,7 @@ function likeCard(req, res) {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
+    .orFail()
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -69,6 +70,7 @@ function dislikeCard(req, res) {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
+    .orFail()
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
