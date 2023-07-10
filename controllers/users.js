@@ -48,7 +48,11 @@ function updateUser(req, res) {
   const { name, about } = req.body;
   const owner = req.user._id;
   userSchema
-    .findByIdAndUpdate(owner, { name, about }, { new: true })
+    .findByIdAndUpdate(
+      owner,
+      { name, about },
+      { new: true, runValidators: true },
+    )
     .then((user) => {
       if (!user) {
         return res.status(404).send({ message: 'Нет пользователя с таким id' });
@@ -56,7 +60,7 @@ function updateUser(req, res) {
       return res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });

@@ -50,11 +50,13 @@ function likeCard(req, res) {
       if (!card) {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return cardSchema.findByIdAndUpdate(
-        req.params.cardId,
-        { $addToSet: { likes: owner } },
-        { new: true },
-      );
+      return cardSchema
+        .findByIdAndUpdate(
+          req.params.cardId,
+          { $addToSet: { likes: owner } },
+          { new: true },
+        )
+        .then((cardLike) => res.status(200).send(cardLike));
     })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
@@ -72,7 +74,7 @@ function dislikeCard(req, res) {
         req.params.cardId,
         { $pull: { likes: owner } },
         { new: true },
-      );
+      ).then((cardDislike) => res.status(200).send(cardDislike));
     })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
