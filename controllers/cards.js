@@ -27,16 +27,18 @@ function createCard(req, res) {
 }
 
 function deleteCard(req, res) {
-  const { id } = req.params;
+  // const { id } = req.params;
   return cardSchema
-    .findById(id)
+    .findById(req.params.userId)
     .then((card) => {
       if (!card) {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return cardSchema.findByIdAndRemove(id).then((removeCard) => {
-        res.status(200).res.send(`${removeCard} успешно удалена`);
-      });
+      return cardSchema
+        .findByIdAndRemove(req.params.userId)
+        .then((removeCard) => {
+          res.status(200).res.send(`${removeCard} успешно удалена`);
+        });
     })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 }
@@ -53,7 +55,7 @@ function likeCard(req, res) {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      if (err.name) {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(404).send({ message: 'Нет карточки с таким id' });
       }
       res.status(500).send({ message: 'Произошла ошибка' });
@@ -61,28 +63,21 @@ function likeCard(req, res) {
 }
 
 function dislikeCard(req, res) {
-  const { id } = req.params;
-  const owner = req.user._id;
   cardSchema
-    .findById(id)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Нет карточки с таким id' });
-      }
-      return cardSchema
-        .findByIdAndUpdate(
-          req.params.cardId,
-          { $pull: { likes: owner } },
-          { new: true },
-        )
-        .then((cardDislike) => res.status(200).res.send(cardDislike));
-    })
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    )
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 }
 
