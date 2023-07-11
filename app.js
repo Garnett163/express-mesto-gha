@@ -4,8 +4,9 @@ const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
+const { MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(MONGO_URL, {
   useNewUrlParser: true,
 });
 

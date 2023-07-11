@@ -5,7 +5,7 @@ function getCards(req, res) {
     .find({})
     .then((cards) => res.status(200).send(cards))
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -21,7 +21,7 @@ function createCard(req, res) {
           message: 'Переданы некорректные данные при создании карточки.',
         });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 }
@@ -41,7 +41,7 @@ function deleteCard(req, res) {
           message: 'Переданы некорректные данные при удалении карточки.',
         });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -63,7 +63,7 @@ function likeCard(req, res) {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
@@ -85,7 +85,7 @@ function dislikeCard(req, res) {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Нет карточки с таким id' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 }
 
