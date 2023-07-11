@@ -21,7 +21,7 @@ function createCard(req, res) {
           message: 'Переданы некорректные данные при создании карточки.',
         });
       } else {
-        res.status(500).send({ message: err.message });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 }

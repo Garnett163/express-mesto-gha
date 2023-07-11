@@ -38,7 +38,7 @@ function createUser(req, res) {
           message: 'Переданы некорректные данные при создании пользователя.',
         });
       } else {
-        res.status(500).send({ message: err.message });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 }
