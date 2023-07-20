@@ -20,7 +20,7 @@ const app = express();
 
 app.use(express.json());
 
-app.post('/signin', login);
+app.post('/signin', validate.validateLogin, login);
 app.post('/signup', validate.validateCreateUser, createUser);
 
 app.use(auth);
