@@ -12,6 +12,14 @@ const validateCreateUser = celebrate({
   }),
 });
 
+const validateLogin = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+});
+
 module.exports = {
   validateCreateUser,
+  validateLogin,
 };
