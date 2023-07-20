@@ -32,7 +32,7 @@ function getUserById(req, res, next) {
     });
 }
 
-function createUser(req, res, next) {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -47,7 +47,7 @@ function createUser(req, res, next) {
       if (user) {
         throw new ConflictError(`Пользователь с таким ${email} уже существует`);
       }
-      bcrypt.hash(password, 10);
+      return bcrypt.hash(password, 10);
     })
     .then((hash) => userSchema.create({
       name,
@@ -56,7 +56,9 @@ function createUser(req, res, next) {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ user }))
+    .then((newUser) => {
+      res.send(newUser);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Некорректные данные');
@@ -64,8 +66,7 @@ function createUser(req, res, next) {
         next(err);
       }
     });
-}
-// .then((user) => userSchema.findOne({ _id: user._id }))
+};
 
 function updateUser(req, res, next) {
   const { name, about } = req.body;
