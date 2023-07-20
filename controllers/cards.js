@@ -1,15 +1,15 @@
 const cardSchema = require('../models/card');
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   return cardSchema
     .find({})
     .then((cards) => res.status(200).send(cards))
     .catch(() => {
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      next({ message: 'На сервере произошла ошибка' });
     });
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   const { name, link } = req.body;
   const owner = req.user._id;
   cardSchema
@@ -17,35 +17,42 @@ function createCard(req, res) {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        next({
           message: 'Переданы некорректные данные при создании карточки.',
         });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        next({ message: 'На сервере произошла ошибка' });
       }
     });
 }
 
-function deleteCard(req, res) {
-  cardSchema
-    .findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: 'Нет карточки с таким id' });
-      }
-      return res.status(200).send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: 'Переданы некорректные данные при удалении карточки.',
-        });
-      }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
-    });
+function deleteCard(req, res, next) {
+  const { cardId } = req.params;
+
+  cardSchema.findById(cardId).then((card) => {
+    if (!card) {
+      next({ message: 'Нет карточки с таким id' });
+    }
+    if (card.userId !== req.user._id) {
+      next({ message: 'Нельзя удалять чужие карточки' });
+    }
+    cardSchema
+      .findByIdAndRemove(cardId)
+      .then((deletedCard) => {
+        res.status(200).send(deletedCard);
+      })
+      .catch((err) => {
+        if (err.name === 'CastError') {
+          next({
+            message: 'Переданы некорректные данные при удалении карточки.',
+          });
+        }
+        next({ message: 'На сервере произошла ошибка' });
+      });
+  });
 }
 
-function likeCard(req, res) {
+function likeCard(req, res, next) {
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
@@ -56,18 +63,16 @@ function likeCard(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные' });
+        next({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Нет карточки с таким id' });
+        next({ message: 'Нет карточки с таким id' });
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      next({ message: 'На сервере произошла ошибка' });
     });
 }
 
-function dislikeCard(req, res) {
+function dislikeCard(req, res, next) {
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
@@ -78,14 +83,12 @@ function dislikeCard(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные' });
+        next({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Нет карточки с таким id' });
+        next({ message: 'Нет карточки с таким id' });
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      next({ message: 'На сервере произошла ошибка' });
     });
 }
 

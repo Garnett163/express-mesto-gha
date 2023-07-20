@@ -11,13 +11,16 @@
   "author": "Garnett163",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^8.39.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "nodemon": "^2.0.22",
-    "eslint": "^8.39.0"
+    "nodemon": "^2.0.22"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "celebrate": "^15.0.1",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.2.1",
     "validator": "^13.9.0"
   }

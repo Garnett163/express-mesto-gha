@@ -1,49 +1,63 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const userSchema = require('../models/users');
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   return userSchema
     .find({})
     .then((users) => res.status(200).send(users))
     .catch(() => {
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      next({ message: 'На сервере произошла ошибка' });
     });
 }
 
-function getUserById(req, res) {
+function getUserById(req, res, next) {
   return userSchema
     .findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+        next({ message: 'Нет пользователя с таким id' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        next({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        next({ message: 'На сервере произошла ошибка' });
       }
     });
 }
 
-function createUser(req, res) {
-  const { name, about, avatar } = req.body;
-  userSchema
-    .create({ name, about, avatar })
+function createUser(req, res, next) {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      userSchema.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      });
+    })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        next({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        next({ message: 'На сервере произошла ошибка' });
       }
     });
 }
 
-function updateUser(req, res) {
+function updateUser(req, res, next) {
   const { name, about } = req.body;
   const owner = req.user._id;
   userSchema
@@ -54,31 +68,64 @@ function updateUser(req, res) {
     )
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+        next({ message: 'Нет пользователя с таким id' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        next({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        next({ message: 'На сервере произошла ошибка' });
       }
     });
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   const owner = req.user._id;
   userSchema
     .findByIdAndUpdate(owner, { avatar }, { new: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+        next({ message: 'Нет пользователя с таким id' });
       }
       return res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(() => next({ message: 'На сервере произошла ошибка' }));
+}
+
+function login(req, res, next) {
+  const { email, password } = req.body;
+  return userSchema
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+        expiresIn: '7d',
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      next({ message: err.message });
+    });
+}
+
+function getCurrentUser(req, res, next) {
+  userSchema
+    .findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        next({ message: 'Пользователь не найден' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next({ message: 'Переданы некорректные данные' });
+      } else {
+        next({ message: 'На сервере произошла ошибка' });
+      }
+    });
 }
 
 module.exports = {
@@ -87,4 +134,6 @@ module.exports = {
   createUser,
   updateUser,
   updateAvatar,
+  login,
+  getCurrentUser,
 };
