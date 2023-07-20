@@ -4,8 +4,8 @@ function getCards(req, res, next) {
   return cardSchema
     .find({})
     .then((cards) => res.status(200).send(cards))
-    .catch(() => {
-      next({ message: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      next(err);
     });
 }
 
@@ -21,7 +21,7 @@ function createCard(req, res, next) {
           message: 'Переданы некорректные данные при создании карточки.',
         });
       } else {
-        next({ message: 'На сервере произошла ошибка' });
+        next(err);
       }
     });
 }
@@ -47,7 +47,7 @@ function deleteCard(req, res, next) {
             message: 'Переданы некорректные данные при удалении карточки.',
           });
         }
-        next({ message: 'На сервере произошла ошибка' });
+        next(err);
       });
   });
 }
@@ -57,7 +57,7 @@ function likeCard(req, res, next) {
     .findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     )
     .orFail()
     .then((card) => res.status(200).send(card))
@@ -68,7 +68,7 @@ function likeCard(req, res, next) {
       if (err.name === 'DocumentNotFoundError') {
         next({ message: 'Нет карточки с таким id' });
       }
-      next({ message: 'На сервере произошла ошибка' });
+      next(err);
     });
 }
 
@@ -77,7 +77,7 @@ function dislikeCard(req, res, next) {
     .findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     )
     .orFail()
     .then((card) => res.status(200).send(card))
@@ -88,7 +88,7 @@ function dislikeCard(req, res, next) {
       if (err.name === 'DocumentNotFoundError') {
         next({ message: 'Нет карточки с таким id' });
       }
-      next({ message: 'На сервере произошла ошибка' });
+      next(err);
     });
 }
 
