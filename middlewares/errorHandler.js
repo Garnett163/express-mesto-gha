@@ -1,4 +1,4 @@
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res) {
   // Обработка ошибок валидации
   if (err.name === 'ValidationError') {
     res.status(400).json({ message: err.message });
@@ -32,7 +32,6 @@ function errorHandler(err, req, res, next) {
   } else {
     res.status(500).json({ message: 'На сервере произошла ошибка' });
   }
-  next();
 }
 
 module.exports = errorHandler;
