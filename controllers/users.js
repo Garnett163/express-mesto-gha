@@ -57,7 +57,7 @@ function createUser(req, res, next) {
       password: hash,
     }))
     .then((user) => userSchema.findOne({ _id: user._id }))
-    .then((user) => res.status(200).res.send({ user }))
+    .then((user) => res.status(200).res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Некорректные данные');
