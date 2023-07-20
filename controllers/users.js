@@ -30,9 +30,7 @@ function getUserById(req, res, next) {
 }
 
 function createUser(req, res, next) {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
   bcrypt
     .hash(password, 10)
@@ -64,7 +62,7 @@ function updateUser(req, res, next) {
     .findByIdAndUpdate(
       owner,
       { name, about },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     )
     .then((user) => {
       if (!user) {
@@ -105,9 +103,7 @@ function login(req, res, next) {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      next({ message: err.message });
-    });
+    .catch((err) => next(err));
 }
 
 function getCurrentUser(req, res, next) {

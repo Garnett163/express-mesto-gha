@@ -20,11 +20,11 @@ const app = express();
 
 app.use(express.json());
 
-userRoutes.post('/signin', login);
-userRoutes.post('/signup', validate.validateCreateUser, createUser);
-app.use(auth);
-app.use(userRoutes);
-app.use(cardRoutes);
+app.post('/signin', login);
+app.post('/signup', validate.validateCreateUser, createUser);
+
+app.use(userRoutes, auth);
+app.use(cardRoutes, auth);
 
 app.use(errors());
 app.use(errorHandler);

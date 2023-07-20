@@ -9,9 +9,9 @@ function errorHandler(err, req, res) {
 
     // Обработка ошибок некорректного формата JSON
   } else if (
-    err instanceof SyntaxError
-    && err.status === 400
-    && 'body' in err
+    err instanceof SyntaxError &&
+    err.status === 400 &&
+    'body' in err
   ) {
     res.status(400).json({ message: 'Некорректный формат JSON' });
   }
