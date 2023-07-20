@@ -56,8 +56,7 @@ function createUser(req, res, next) {
       email,
       password: hash,
     }))
-    .then((user) => userSchema.findOne({ _id: user._id }))
-    .then((user) => res.status(200).res.send(user))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Некорректные данные');
@@ -66,6 +65,7 @@ function createUser(req, res, next) {
       }
     });
 }
+// .then((user) => userSchema.findOne({ _id: user._id }))
 
 function updateUser(req, res, next) {
   const { name, about } = req.body;
