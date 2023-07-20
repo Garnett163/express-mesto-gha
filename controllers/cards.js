@@ -57,7 +57,7 @@ function likeCard(req, res, next) {
     .findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     )
     .orFail()
     .then((card) => res.status(200).send(card))
@@ -77,7 +77,7 @@ function dislikeCard(req, res, next) {
     .findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     )
     .orFail()
     .then((card) => res.status(200).send(card))

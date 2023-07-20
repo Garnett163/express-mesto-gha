@@ -23,8 +23,9 @@ app.use(express.json());
 app.post('/signin', login);
 app.post('/signup', validate.validateCreateUser, createUser);
 
-app.use(userRoutes, auth);
-app.use(cardRoutes, auth);
+app.use(auth);
+app.use(userRoutes);
+app.use(cardRoutes);
 
 app.use(errors());
 app.use(errorHandler);
