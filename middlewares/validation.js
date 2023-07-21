@@ -19,7 +19,22 @@ const validateLogin = celebrate({
   }),
 });
 
+const validateUpdateUser = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+});
+
+const validateUpdateAvatar = celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().regex(avatarRegex).required(),
+  }),
+});
+
 module.exports = {
   validateCreateUser,
   validateLogin,
+  validateUpdateUser,
+  validateUpdateAvatar,
 };

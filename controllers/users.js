@@ -22,6 +22,9 @@ function getUserById(req, res, next) {
     })
     .then((user) => res.send(user))
     .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Пользователя с таким id не существует');
+      }
       next(err);
     });
 }
