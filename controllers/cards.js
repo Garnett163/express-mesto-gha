@@ -1,4 +1,7 @@
 const cardSchema = require('../models/card');
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbidError = require('../errors/ForbidError');
 
 function getCards(req, res, next) {
   return cardSchema
@@ -17,9 +20,7 @@ function createCard(req, res, next) {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next({
-          message: 'Переданы некорректные данные при создании карточки.',
-        });
+        throw new ValidationError('Переданы некорректные данные при создании карточки.');
       } else {
         next(err);
       }
@@ -31,10 +32,10 @@ function deleteCard(req, res, next) {
 
   cardSchema.findById(cardId).then((card) => {
     if (!card) {
-      next({ message: 'Нет карточки с таким id' });
+      throw new NotFoundError('Нет карточки с таким id');
     }
     if (card.userId !== req.user._id) {
-      next({ message: 'Нельзя удалять чужие карточки' });
+      throw new ForbidError('Нельзя удалять чужие карточки');
     }
     cardSchema
       .findByIdAndRemove(cardId)
@@ -43,9 +44,7 @@ function deleteCard(req, res, next) {
       })
       .catch((err) => {
         if (err.name === 'CastError') {
-          next({
-            message: 'Переданы некорректные данные при удалении карточки.',
-          });
+          throw new NotFoundError('Переданы некорректные данные при удалении карточки.');
         }
         next(err);
       });
@@ -63,10 +62,10 @@ function likeCard(req, res, next) {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next({ message: 'Переданы некорректные данные' });
+        throw new NotFoundError('Переданы некорректные данные');
       }
       if (err.name === 'DocumentNotFoundError') {
-        next({ message: 'Нет карточки с таким id' });
+        throw new NotFoundError('Нет карточки с таким id');
       }
       next(err);
     });
@@ -83,10 +82,10 @@ function dislikeCard(req, res, next) {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next({ message: 'Переданы некорректные данные' });
+        throw new NotFoundError('Переданы некорректные данные');
       }
       if (err.name === 'DocumentNotFoundError') {
-        next({ message: 'Нет карточки с таким id' });
+        throw new NotFoundError('Нет карточки с таким id');
       }
       next(err);
     });

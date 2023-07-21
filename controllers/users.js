@@ -4,6 +4,7 @@ const userSchema = require('../models/users');
 const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
 
 function getUsers(req, res, next) {
   return userSchema
@@ -88,7 +89,7 @@ function updateUser(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        throw new ValidationError('Переданы некорректные данные');
       }
       next(err);
     });
