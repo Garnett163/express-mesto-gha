@@ -15,20 +15,14 @@ function getUsers(req, res, next) {
 }
 
 function getUserById(req, res, next) {
-  return userSchema
+  userSchema
     .findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      return res.status(200).send(user);
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else {
-        next(err);
-      }
+      next(err);
     });
 }
 
@@ -125,20 +119,20 @@ function login(req, res, next) {
 }
 
 function getCurrentUser(req, res, next) {
-  userSchema
+  return userSchema
     .findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь не найден');
-      }
-      return res.status(200).send(user);
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
     })
+    .then((user) => res.status(200).send({ user }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        throw new NotFoundError('Переданы некорректные данные');
+      } else if (err.message === 'NotFound') {
+        throw new NotFoundError('Пользователь не найден');
       }
-      next(err);
-    });
+    })
+    .catch(next);
 }
 
 module.exports = {
