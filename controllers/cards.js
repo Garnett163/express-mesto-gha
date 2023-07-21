@@ -85,22 +85,31 @@ function likeCard(req, res, next) {
 }
 
 function dislikeCard(req, res, next) {
+  const { cardId } = req.params;
+
   cardSchema
-    .findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    )
-    .orFail()
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new NotFoundError('Переданы некорректные данные');
+    .findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с указанным id не найдена');
+      } else {
+        cardSchema
+          .findByIdAndUpdate(
+            req.params.cardId,
+            { $pull: { likes: req.user._id } },
+            { new: true },
+          )
+          .then((cardDisliked) => res.status(200).send(cardDisliked));
       }
-      if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError('Нет карточки с таким id');
+    })
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        throw new NotFoundError(
+          'Карточка с указанным id не существует в базе данных',
+        );
+      } else {
+        next(error);
       }
-      next(err);
     });
 }
 
