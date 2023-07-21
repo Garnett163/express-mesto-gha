@@ -20,7 +20,7 @@ function getUserById(req, res, next) {
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       next(err);
     });
@@ -119,12 +119,12 @@ function login(req, res, next) {
 }
 
 function getCurrentUser(req, res, next) {
-  return userSchema
+  userSchema
     .findById(req.user._id)
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
     })
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new NotFoundError('Переданы некорректные данные');
