@@ -32,27 +32,28 @@ function createCard(req, res, next) {
 function deleteCard(req, res, next) {
   const { cardId } = req.params;
 
-  cardSchema.findById(cardId).then((card) => {
-    if (!card) {
-      throw new NotFoundError('Нет карточки с таким id');
-    }
-    if (card.userId !== req.user._id) {
-      throw new ForbidError('Нельзя удалять чужие карточки');
-    }
-    cardSchema
-      .findByIdAndRemove(cardId)
-      .then((deletedCard) => {
-        res.status(200).send(deletedCard);
-      })
-      .catch((err) => {
-        if (err.name === 'CastError') {
-          throw new NotFoundError(
-            'Переданы некорректные данные при удалении карточки.',
-          );
-        }
-        next(err);
-      });
-  });
+  cardSchema
+    .findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Нет карточки с таким id');
+      }
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbidError('Нельзя удалять чужие карточки');
+      } else {
+        cardSchema.findByIdAndRemove(cardId).then((deletedCard) => {
+          res.status(200).send(deletedCard);
+        });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new NotFoundError(
+          'Переданы некорректные данные при удалении карточки.',
+        );
+      }
+      next(err);
+    });
 }
 
 function likeCard(req, res, next) {
