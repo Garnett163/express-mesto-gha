@@ -23,20 +23,14 @@ function getUserById(req, res, next) {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Пользователя с таким id не существует');
+        next(new BadRequestError('Пользователя с таким id не существует'));
       }
       next(err);
     });
 }
 
 const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  if (!email || !password) {
-    throw new BadRequestError('Переданы некорректные данные');
-  }
+  const { name, about, avatar, email, password } = req.body;
 
   userSchema
     .findOne({ email })
@@ -46,13 +40,15 @@ const createUser = (req, res, next) => {
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) => userSchema.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
+    .then((hash) =>
+      userSchema.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
     .then((newUser) => {
       res.send({
         _id: newUser._id,
@@ -64,7 +60,9 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Некорректные данные');
+        next(new BadRequestError('Некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email существует'));
       } else {
         next(err);
       }
@@ -78,7 +76,7 @@ function updateUser(req, res, next) {
     .findByIdAndUpdate(
       owner,
       { name, about },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     )
     .then((user) => {
       if (!user) {
@@ -88,7 +86,7 @@ function updateUser(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные');
+        next(new BadRequestError('Переданы некорректные данные'));
       }
       next(err);
     });
@@ -98,7 +96,7 @@ function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   const owner = req.user._id;
   userSchema
-    .findByIdAndUpdate(owner, { avatar }, { new: true })
+    .findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
@@ -129,13 +127,8 @@ function getCurrentUser(req, res, next) {
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new NotFoundError('Переданы некорректные данные');
-      } else if (err.message === 'NotFound') {
-        throw new NotFoundError('Пользователь не найден');
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 }
 
 module.exports = {

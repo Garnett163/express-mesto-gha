@@ -21,7 +21,7 @@ function createCard(req, res, next) {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError(
-          'Переданы некорректные данные при создании карточки.',
+          'Переданы некорректные данные при создании карточки.'
         );
       } else {
         next(err);
@@ -41,7 +41,7 @@ function deleteCard(req, res, next) {
       if (card.owner.toString() !== req.user._id) {
         throw new ForbidError('Нельзя удалять чужие карточки');
       } else {
-        cardSchema.findByIdAndRemove(cardId).then((deletedCard) => {
+        return cardSchema.findByIdAndRemove(cardId).then((deletedCard) => {
           res.status(200).send(deletedCard);
         });
       }
@@ -49,7 +49,7 @@ function deleteCard(req, res, next) {
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new NotFoundError(
-          'Переданы некорректные данные при удалении карточки.',
+          'Переданы некорректные данные при удалении карточки.'
         );
       }
       next(err);
@@ -69,7 +69,7 @@ function likeCard(req, res, next) {
           .findByIdAndUpdate(
             req.params.cardId,
             { $addToSet: { likes: req.user._id } },
-            { new: true },
+            { new: true }
           )
           .then((cardLiked) => res.status(200).send(cardLiked));
       }
@@ -77,7 +77,7 @@ function likeCard(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         throw new NotFoundError(
-          'Карточка с указанным id не существует в базе данных',
+          'Карточка с указанным id не существует в базе данных'
         );
       } else {
         next(error);
@@ -98,7 +98,7 @@ function dislikeCard(req, res, next) {
           .findByIdAndUpdate(
             req.params.cardId,
             { $pull: { likes: req.user._id } },
-            { new: true },
+            { new: true }
           )
           .then((cardDisliked) => res.status(200).send(cardDisliked));
       }
@@ -106,7 +106,7 @@ function dislikeCard(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         throw new NotFoundError(
-          'Карточка с указанным id не существует в базе данных',
+          'Карточка с указанным id не существует в базе данных'
         );
       } else {
         next(error);

@@ -28,12 +28,12 @@ app.use(auth);
 app.use(userRoutes);
 app.use(cardRoutes);
 
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена!'));
+});
+
 app.use(errors());
 app.use(errorHandler);
-
-app.use('*', (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
 
 app.listen(PORT, () => {
   console.log(`Application is running on port ${PORT}`);
