@@ -30,7 +30,9 @@ function getUserById(req, res, next) {
 }
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   userSchema
     .findOne({ email })
@@ -40,15 +42,13 @@ const createUser = (req, res, next) => {
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) =>
-      userSchema.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      })
-    )
+    .then((hash) => userSchema.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((newUser) => {
       res.send({
         _id: newUser._id,
@@ -76,7 +76,7 @@ function updateUser(req, res, next) {
     .findByIdAndUpdate(
       owner,
       { name, about },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     )
     .then((user) => {
       if (!user) {
