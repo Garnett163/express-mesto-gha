@@ -1,7 +1,7 @@
 const cardSchema = require('../models/card');
-const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbidError = require('../errors/ForbidError');
+const BadRequestError = require('../errors/BadRequestError');
 
 function getCards(req, res, next) {
   return cardSchema
@@ -20,7 +20,7 @@ function createCard(req, res, next) {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidationError(
+        throw new BadRequestError(
           'Переданы некорректные данные при создании карточки.',
         );
       } else {
