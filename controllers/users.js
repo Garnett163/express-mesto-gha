@@ -9,8 +9,8 @@ function getUsers(req, res, next) {
   return userSchema
     .find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 
@@ -21,11 +21,11 @@ function getUserById(req, res, next) {
       throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         next(new BadRequestError('Пользователя с таким id не существует'));
       }
-      next(err);
+      next(error);
     });
 }
 
@@ -58,13 +58,13 @@ const createUser = (req, res, next) => {
         email: newUser.email,
       });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
-      } else if (err.code === 11000) {
+      } else if (error.code === 11000) {
         next(new ConflictError('Пользователь с таким email существует'));
       } else {
-        next(err);
+        next(error);
       }
     });
 };
@@ -84,11 +84,11 @@ function updateUser(req, res, next) {
       }
       return res.status(200).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       }
-      next(err);
+      next(error);
     });
 }
 
@@ -103,7 +103,7 @@ function updateAvatar(req, res, next) {
       }
       return res.status(200).send(user);
     })
-    .catch((err) => next(err));
+    .catch((error) => next(error));
 }
 
 function login(req, res, next) {
@@ -116,7 +116,7 @@ function login(req, res, next) {
       });
       res.send({ token });
     })
-    .catch((err) => next(err));
+    .catch((error) => next(error));
 }
 
 function getCurrentUser(req, res, next) {
@@ -126,8 +126,8 @@ function getCurrentUser(req, res, next) {
       throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 

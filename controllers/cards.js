@@ -7,8 +7,8 @@ function getCards(req, res, next) {
   return cardSchema
     .find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => {
-      next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 
@@ -18,15 +18,15 @@ function createCard(req, res, next) {
   cardSchema
     .create({ name, link, owner })
     .then((card) => res.status(201).send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
         next(
           new BadRequestError(
             'Переданы некорректные данные при создании карточки.',
           ),
         );
       } else {
-        next(err);
+        next(error);
       }
     });
 }
@@ -48,15 +48,15 @@ function deleteCard(req, res, next) {
         });
       }
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         next(
           new NotFoundError(
             'Переданы некорректные данные при удалении карточки.',
           ),
         );
       }
-      next(err);
+      next(error);
     });
 }
 
