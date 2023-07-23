@@ -73,12 +73,10 @@ function updateUser(req, res, next) {
       { name, about },
       { new: true, runValidators: true },
     )
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      return res.status(200).send(user);
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.status(200).send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
@@ -93,12 +91,10 @@ function updateAvatar(req, res, next) {
   const owner = req.user._id;
   userSchema
     .findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      return res.status(200).send(user);
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.status(200).send(user))
     .catch((error) => next(error));
 }
 
