@@ -24,8 +24,9 @@ function getUserById(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Пользователя с таким id не существует'));
+      } else {
+        next(error);
       }
-      next(error);
     });
 }
 
@@ -34,14 +35,8 @@ const createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  userSchema
-    .findOne({ email })
-    .then((user) => {
-      if (user) {
-        throw new ConflictError(`Пользователь с таким ${email} уже существует`);
-      }
-      return bcrypt.hash(password, 10);
-    })
+  bcrypt
+    .hash(password, 10)
     .then((hash) => userSchema.create({
       name,
       about,
@@ -87,8 +82,9 @@ function updateUser(req, res, next) {
     .catch((error) => {
       if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(error);
       }
-      next(error);
     });
 }
 

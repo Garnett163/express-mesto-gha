@@ -51,12 +51,13 @@ function deleteCard(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         next(
-          new NotFoundError(
+          new BadRequestError(
             'Переданы некорректные данные при удалении карточки.',
           ),
         );
+      } else {
+        next(error);
       }
-      next(error);
     });
 }
 
@@ -81,7 +82,7 @@ function likeCard(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         next(
-          new NotFoundError(
+          new BadRequestError(
             'Карточка с указанным id не существует в базе данных',
           ),
         );
@@ -112,7 +113,7 @@ function dislikeCard(req, res, next) {
     .catch((error) => {
       if (error.name === 'CastError') {
         next(
-          new NotFoundError(
+          new BadRequestError(
             'Карточка с указанным id не существует в базе данных',
           ),
         );
